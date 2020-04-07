@@ -1,11 +1,11 @@
 package myorg.com.process
 
 import myorg.com.helpers.Splitter
-import org.apache.spark.h2o.{H2OConf, H2OContext}
+import org.apache.spark.h2o.{H2OConf, H2OContext, H2OFrame}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.functions._
-import _root_.hex.ScoreKeeper
+import _root_.hex.{Model, ModelMetricsBinomial, ScoreKeeper}
 
 object H2OMain extends App with FeatureEngineering {
 
@@ -77,17 +77,17 @@ object H2OMain extends App with FeatureEngineering {
 
   val flattenedPredXGBoost = testPredictionsXGBoost
     //.select("label", "prediction", "detailed_prediction.probabilities")
-    .withColumn("keys", map_keys(col("detailed_prediction.probabilities")))
-    .withColumn("values", map_values(col("detailed_prediction.probabilities")))
-    .select("label", "prediction", "keys", "values")
-    .withColumn("p0", extractValue0(col("values")))
-    .withColumn("p1", extractValue1(col("values")))
+    //.withColumn("keys", map_keys(col("detailed_prediction.probabilities")))
+    //.withColumn("values", map_values(col("detailed_prediction.probabilities")))
+    //.select("label", "prediction", "keys", "values")
+    //.withColumn("p0", extractValue0(col("values")))
+    //.withColumn("p1", extractValue1(col("values")))
+      .withColumn("p0", element_at(col("detailed_prediction.probabilities"), "0"))
+      .withColumn("p1", element_at(col("detailed_prediction.probabilities"), "1"))
+      .select("label", "prediction", "p0", "p1")
 
   flattenedPredXGBoost.printSchema()
-  flattenedPredXGBoost.filter("prediction = 0").show(5, false)
-  flattenedPredXGBoost.filter("prediction = 1").show(5, false)
-  flattenedPredXGBoost.filter("label = 0 and prediction = 1").show(5, false)
-  flattenedPredXGBoost.filter("label = 1 and prediction = 0").show(5, false)
+  flattenedPredXGBoost.show(5, false)
 
   flattenedPredXGBoost
     .selectExpr("label", "prediction")
