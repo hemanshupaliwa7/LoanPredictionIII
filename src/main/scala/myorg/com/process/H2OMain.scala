@@ -1,18 +1,28 @@
 package myorg.com.process
 
 import myorg.com.helpers.Splitter
-import org.apache.spark.h2o.{H2OConf, H2OContext}
+import org.apache.spark.h2o.{H2OConf, H2OContext, H2OFrame}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.functions._
-import _root_.hex.ScoreKeeper
+import _root_.hex.{Model, ModelMetricsBinomial, ScoreKeeper}
 
 object H2OMain extends App with FeatureEngineering {
 
+  println("*** H2O Configuration and Context")
+  /*val h2oConf = new H2OConf(spark)
+    .set("spark.ui.enabled", "false")
+    .set("spark.locality.wait", "0")*/
+
+  println("*** Set Up H2O Context")
+  val h2oContext = H2OContext.getOrCreate(spark)
+
   println("*** Create Pipeline")
-  val pipelineStages = stringIndexerArray :+ featureAssembler
+  //val pipelineStages1 = stringIndexerArray ++ oneHotEncoder  featureAssembler
+  val pipelineStages = Array(oneHotEncoder, featureAssembler)
   val pipeline = new Pipeline()
-    .setStages(pipelineStages)
+    .setStages(stringIndexerArray ++ pipelineStages)
+  pipeline.write.overwrite().save(currentDirectory + "/Pipeline")
 
   val preparedDf = pipeline.fit(trainDf).transform(trainDf)
 
@@ -77,23 +87,25 @@ object H2OMain extends App with FeatureEngineering {
 
   val flattenedPredXGBoost = testPredictionsXGBoost
     //.select("label", "prediction", "detailed_prediction.probabilities")
-    .withColumn("keys", map_keys(col("detailed_prediction.probabilities")))
-    .withColumn("values", map_values(col("detailed_prediction.probabilities")))
-    .select("label", "prediction", "keys", "values")
-    .withColumn("p0", extractValue0(col("values")))
-    .withColumn("p1", extractValue1(col("values")))
+    //.withColumn("keys", map_keys(col("detailed_prediction.probabilities")))
+    //.withColumn("values", map_values(col("detailed_prediction.probabilities")))
+    //.select("label", "prediction", "keys", "values")
+    //.withColumn("p0", extractValue0(col("values")))
+    //.withColumn("p1", extractValue1(col("values")))
+    .withColumn("p0", element_at(col("detailed_prediction.probabilities"), "0"))
+    .withColumn("p1", element_at(col("detailed_prediction.probabilities"), "1"))
+     //.withColumn("p0", testPredictionsXGBoost("detailed_prediction.p0"))
+     //.withColumn("p1", testPredictionsXGBoost("detailed_prediction.p1"))
+     //.select("label", "prediction", "p0", "p1")
 
   flattenedPredXGBoost.printSchema()
-  flattenedPredXGBoost.filter("prediction = 0").show(5, false)
-  flattenedPredXGBoost.filter("prediction = 1").show(5, false)
-  flattenedPredXGBoost.filter("label = 0 and prediction = 1").show(5, false)
-  flattenedPredXGBoost.filter("label = 1 and prediction = 0").show(5, false)
-
-  flattenedPredXGBoost
+  flattenedPredXGBoost.show(5, false)
+  val confusionMatrix = flattenedPredXGBoost
     .selectExpr("label", "prediction")
     .groupBy("label", "prediction")
     .count()
-    .show(300)
+  confusionMatrix.printSchema()
+  confusionMatrix.show(300)
 
 /*
   println("*** Perform H2O AutoML")

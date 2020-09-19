@@ -1,17 +1,14 @@
-package analyticsvidya.helpers
-
-import myorg.com.process.H2OMain.spark
-import org.apache.spark.h2o.{H2OConf, H2OContext}
+package myorg.com
 import org.apache.spark.sql.SparkSession
 
-trait Helpers {
+object MesosCheck extends App {
 
-  val currentDirectory = new java.io.File(".").getCanonicalPath + "/Working_Directory"
   System.setProperty("hadoop.home.dir","C:\\hadoop" )
   val spark = SparkSession
     .builder
     .appName("LoanPredictionIII")
-    .config("spark.master", "local[1]")
+    .config("spark.master", "spark://34.71.49.158:7077")
+    //.config("spark.master", "spark://local[*]")
     .config("spark.driver.bindAddress", "localhost")
     .config("spark.sql.autoBroadcastJoinThreshold", "-1")
     .config("spark.locality.wait", "0")
@@ -22,8 +19,21 @@ trait Helpers {
     //.config("spark.memory.offHeap.size","10G")
     .getOrCreate()
 
-  val sc = spark.sparkContext
+  import org.apache.spark.ml.feature.StringIndexer
 
+  val df = spark.createDataFrame(
+    Seq((0, "a"), (1, "b"), (2, "c"), (3, "a"), (4, "a"), (5, "c"))
+  ).toDF("id", "category")
+
+  df.show()
+
+  val indexer = { new StringIndexer()
+    .setInputCol("category")
+    .setOutputCol("categoryIndex")}
+
+
+  val indexed = indexer.fit(df).transform(df)
+  indexed.show()
+
+  spark.stop()
 }
-
-

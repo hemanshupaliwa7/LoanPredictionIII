@@ -1,9 +1,11 @@
 import AssemblyKeys._
 
 lazy val buildSettings = Seq(
-  version := "0.1-SNAPSHOT",
+  name := "LoanPredictionIII-21210",
+  version := "1.0",
   organization := "myorg",
-  scalaVersion := "2.11.1"
+  //scalaVersion := "2.12.10"
+  scalaVersion := "2.11.11"
 )
 
 val app = (project in file(".")).
@@ -25,22 +27,16 @@ val app = (project in file(".")).
     }
   )
 
-name := "LoanPredictionIII"
-
-version := "1.0"
-
-scalaVersion := "2.11.1"
-
-val sparkVersion = "2.4.5"
-val kafkaVersion = "0.10.0.1"
-//val sparklingWaterVersion = "3.26.11-2.4"
-val sparklingWaterVersion = "3.28.1.2-1-2.4"
+//val sparkVersion = "3.0.0"
+val sparkVersion = "2.4.6"
+//val sparklingWaterVersion = "3.30.0.6-1-3.0"
+val sparklingWaterVersion = "3.30.1.2-1-2.4"
 
 //fork := true
 
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7"
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.7"
-dependencyOverrides += "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.7"
+dependencyOverrides += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.8.7"
 
 
 libraryDependencies ++= Seq(
@@ -53,50 +49,24 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-mllib" % sparkVersion,
   "org.apache.spark" %% "spark-hive" % sparkVersion,
   "org.apache.spark" %% "spark-repl" % sparkVersion,
-  //Kafka Libreries
-  "org.apache.kafka" %% "kafka" % kafkaVersion,
-  "org.apache.kafka" % "kafka-streams" % kafkaVersion,
-  "org.apache.kafka" % "kafka-clients" % kafkaVersion,
-  //Others
-  "com.datastax.spark" % "spark-cassandra-connector_2.11" % "2.4.0",
-  "net.liftweb" % "lift-json_2.11" % "3.0.1",
-  "mysql" % "mysql-connector-java" % "5.1.12",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-  "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.6",
-  "com.typesafe" % "config" % "1.2.1",
-  "com.github.benfradet" %% "spark-kafka-writer" % "0.4.0",
-  "com.m3" %% "curly-scala" % "0.5.+",
-  "io.confluent" % "kafka-avro-serializer" % "3.2.2",
-  "com.databricks" %% "spark-avro" % "3.2.0",
-  "com.amazonaws" % "aws-java-sdk-kms" % "1.10.75.1",
-  "org.scalaz" % "scalaz-core_2.11" % "7.3.0-M14",
-  "com.ovoenergy" %% "kafka-serialization-avro4s" % "0.1.23",
-  "com.github.fommil.netlib" % "all" % "1.1.2" pomOnly(),
-  "com.crealytics" %% "spark-excel" % "0.8.2",
-  "org.apache.mesos" % "mesos" % "1.6.2",
-  "com.google.protobuf" % "protobuf-java" % "3.9.1",
-  //Sparkling Water
-  "ai.h2o" %% "sparkling-water-core" % sparklingWaterVersion,
-  "ai.h2o" %% "sparkling-water-utils" % sparklingWaterVersion,
-  "ai.h2o" %% "sparkling-water-repl" % sparklingWaterVersion,
-  "ai.h2o" %% "sparkling-water-ml" % sparklingWaterVersion,
+
   "ai.h2o" %% "sparkling-water-package" % sparklingWaterVersion,
-  "ai.h2o" %% "sparkling-water-scoring" % sparklingWaterVersion,
-  "org.codehaus.jsr166-mirror" % "jsr166y" % "1.7.0"
+
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
 )
 
 
 resolvers ++= Seq(
   //"JBoss Repository" at "http://repository.jboss.org/nexus/content/repositories/releases/",
   "Maven Central" at "https://repo.maven.apache.org/maven2",
-  "Spray Repository" at "http://repo.spray.io/",
+  //"Spray Repository" at "http://repo.spray.io/",
   "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
   "Akka Repository" at "http://repo.akka.io/releases/",
   "Twitter4J Repository" at "http://twitter4j.org/maven2/",
   "Apache HBase" at "https://repository.apache.org/content/repositories/releases",
   "Twitter Maven Repo" at "http://maven.twttr.com/",
   "scala-tools" at "https://oss.sonatype.org/content/groups/scala-tools",
-  "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+  //"Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
   "Second Typesafe repo" at "http://repo.typesafe.com/typesafe/maven-releases/",
   "Mesosphere Public Repository" at "http://downloads.mesosphere.io/maven",
   "confluent" at "http://packages.confluent.io/maven/",

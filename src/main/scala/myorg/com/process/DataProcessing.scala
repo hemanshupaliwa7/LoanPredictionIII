@@ -75,11 +75,11 @@ trait DataProcessing extends Helpers {
   println("*** Training distribution")
   val overallDf = new Splitter().divide(inputDf = beforeTrainDf, label = "label")
 
-  val trainDf = overallDf(0).except(sourceTrainMainDf)
+  val trainDf = overallDf(0).except(sourceTrainMainDf).persist()
   trainDf.groupBy("label").count().show()
 
   println("*** Testing distribution")
-  val testDf = overallDf(1).union(sourceTrainMainDf)
+  val testDf = overallDf(1).union(sourceTrainMainDf).persist()
   testDf.groupBy("label").count().show()
 
 }

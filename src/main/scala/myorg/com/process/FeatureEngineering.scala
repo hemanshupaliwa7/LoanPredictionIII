@@ -1,7 +1,7 @@
 package myorg.com.process
 
 import org.apache.spark.ml.classification.{GBTClassifier, RandomForestClassifier}
-import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler, VectorIndexer}
+import org.apache.spark.ml.feature.{OneHotEncoderEstimator, StringIndexer, VectorAssembler, VectorIndexer}
 
 trait FeatureEngineering extends  DataProcessing {
 
@@ -24,6 +24,15 @@ trait FeatureEngineering extends  DataProcessing {
   val indexedStringAttrArray =  stringColsArray
     .map{x => x+"Index"}
 
+  val oneHotEncodedStringAttrArray =  stringColsArray
+    .map{x => x+"OHEncoded"}
+
+  val oneHotEncoder = new OneHotEncoderEstimator()
+    .setInputCols(indexedStringAttrArray)
+    .setOutputCols(oneHotEncodedStringAttrArray)
+    .setDropLast(true)
+    .setHandleInvalid("keep")
+
   //non-String Column List
   val excludeNonStringColsArray = Array("label")
   val nonStringColsArray = trainDf
@@ -32,7 +41,7 @@ trait FeatureEngineering extends  DataProcessing {
     .map(x => x._1)
     .diff(excludeNonStringColsArray)
 
-  val featureColsArray = indexedStringAttrArray.union(nonStringColsArray)
+  val featureColsArray = oneHotEncodedStringAttrArray.union(nonStringColsArray)
   featureColsArray.foreach(println)
 
   println("Feature Engineering : Perform Vector Assembler and Indexer")
