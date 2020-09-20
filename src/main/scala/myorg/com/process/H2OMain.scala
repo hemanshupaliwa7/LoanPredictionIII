@@ -92,6 +92,7 @@ object H2OMain extends App with FeatureEngineering {
     //.select("label", "prediction", "keys", "values")
     //.withColumn("p0", extractValue0(col("values")))
     //.withColumn("p1", extractValue1(col("values")))
+<<<<<<< HEAD
     .withColumn("p0", element_at(col("detailed_prediction.probabilities"), "0"))
     .withColumn("p1", element_at(col("detailed_prediction.probabilities"), "1"))
      //.withColumn("p0", testPredictionsXGBoost("detailed_prediction.p0"))
@@ -101,6 +102,16 @@ object H2OMain extends App with FeatureEngineering {
   flattenedPredXGBoost.printSchema()
   flattenedPredXGBoost.show(5, false)
   val confusionMatrix = flattenedPredXGBoost
+=======
+      .withColumn("p0", element_at(col("detailed_prediction.probabilities"), "0"))
+      .withColumn("p1", element_at(col("detailed_prediction.probabilities"), "1"))
+      .select("label", "prediction", "p0", "p1")
+
+  flattenedPredXGBoost.printSchema()
+  flattenedPredXGBoost.show(5, false)
+
+  flattenedPredXGBoost
+>>>>>>> d4e28055deec35f6c40ba17d13ab892945bf67ea
     .selectExpr("label", "prediction")
     .groupBy("label", "prediction")
     .count()
