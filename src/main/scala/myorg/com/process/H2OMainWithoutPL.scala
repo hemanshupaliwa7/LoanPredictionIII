@@ -15,7 +15,6 @@ object H2OMainWithoutPL extends App with DataProcessing {
 
   println("*** Set Up H2O Context")
   val h2oContext = H2OContext.getOrCreate(spark)
-  h2oContext.setH2OLogLevel("ERROR")
 
   println("*** Training distribution")
   val trainForH2O = new Splitter().divide(inputDf = trainDf, label = "label")(0).persist()
@@ -39,26 +38,22 @@ object H2OMainWithoutPL extends App with DataProcessing {
   val xgBoost = new H2OGBM()
     .setLabelCol("label")
     .setFeaturesCols(trainH2ODf.drop("label", "Loan_ID").columns)
-//    .setWithDetailedPredictionCol(true)
-//    .setAllStringColumnsToCategorical(true)
+    .setWithDetailedPredictionCol(true)
+    .setAllStringColumnsToCategorical(true)
     .setConvertInvalidNumbersToNa(true)
     .setConvertUnknownCategoricalLevelsToNa(true)
-    .setWithContributions(true)
-    .setColumnsToCategorical(trainDf.dtypes.filter(x => x._2 == "StringType").map(x => x._1).diff(Array("label", "Loan_ID")))
     .setNamedMojoOutputColumns(true)
 
   val xgBoostModel = xgBoost.fit(trainH2ODf)
-  println(xgBoostModel.getTrainingMetrics())
-  println(xgBoostModel.getCurrentMetrics())
-  println(xgBoostModel.getValidationMetrics())
+  println(xgBoostModel.params)
 
   val testPredictionsXGBoost = xgBoostModel.transform(testH2ODf)
   testPredictionsXGBoost.printSchema()
   testPredictionsXGBoost.show(5,false)
 
   val flattenedPredXGBoost = testPredictionsXGBoost
-//    .withColumn("p0", element_at(col("detailed_prediction.probabilities"), "0"))
-//    .withColumn("p1", element_at(col("detailed_prediction.probabilities"), "1"))
+    /*.withColumn("p0", element_at(col("detailed_prediction.probabilities"), "0"))
+    .withColumn("p1", element_at(col("detailed_prediction.probabilities"), "1"))*/
 
   flattenedPredXGBoost.printSchema()
   flattenedPredXGBoost.show(5, false)
@@ -73,9 +68,10 @@ object H2OMainWithoutPL extends App with DataProcessing {
   val probKeysDf = flattenedPredXGBoost.select(explode(map_keys(col("detailed_prediction.probabilities")))).distinct()
   val probKeys = probKeysDf.collect().map(f=>f.get(0))
   val probKeysCols = probKeys.map(f=> col("detailed_prediction.probabilities").getItem(f).as("p"+f.toString))
-  val contributionsDf = flattenedPredXGBoost.select(explode(map_keys(col("detailed_prediction.contributions")))).distinct()
-  val contributionsKeys = contributionsDf.collect().map(f=>f.get(0))
-  val contributionsKeysCols = contributionsKeys.map(f=> col("detailed_prediction.contributions").getItem(f).as(f.toString + "_shap"))
+  val contributionsKeysCols = trainH2ODf.drop("label", "Loan_ID")
+    .columns.union(Array("BiasTerm"))
+    .zipWithIndex
+    .map{case (newName, idx)=> col("detailed_prediction.contributions").getItem(idx).alias(newName + "_shap")}
   val allKeysCols = probKeysCols ++ contributionsKeysCols
   val finalDf = flattenedPredXGBoost
     .select(col("*") +: allKeysCols:_*)
@@ -83,7 +79,12 @@ object H2OMainWithoutPL extends App with DataProcessing {
   finalDf.printSchema
   finalDf.show(5, false)
 
-  finalDf.repartition(1).write.format("csv").option("header", "true").save(currentDirectory + "/testPred")
+  finalDf
+    .repartition(1)
+    .write.format("csv")
+    .option("header", "true")
+    .mode("overwrite")
+    .save(currentDirectory + "/testPred")
 
   spark.stop()
   h2oContext.stop(stopSparkContext = true)
