@@ -54,6 +54,7 @@ trait Helpers {
     )
   }
 
+  //Without Kryo Serilizer
   val spark = {
     SparkSession
       .builder
@@ -69,35 +70,23 @@ trait Helpers {
       .config("spark.kryoserializer.buffer", "1024k")
       // use this if you need to increment Kryo buffer max size. Default 64m
       .config("spark.kryoserializer.buffer.max", "1024m")
-      /*
-    * Use this if you need to register all Kryo required classes.
-    * If it is false, you do not need register any class for Kryo, but it will increase your data size when the data is serializing.
-    */
+      //Kryo Registration Required for Classes
       .config("spark.kryo.registrationRequired", "true")
       .getOrCreate()
   }
-  /*val spark = SparkSession
-    .builder
-    .appName("LoanPredictionIII")
-    .config("spark.master", "local[*]")
-    .config("spark.driver.bindAddress", "localhost")
-    .config("spark.sql.autoBroadcastJoinThreshold", "-1")
-    .config("spark.locality.wait", "0")
-    .config("spark.ext.h2o.repl.enabled","false")
-    //.config("spark.executor.resource.gpu.amount", "1")
-    //.config("spark.task.resource.gpu.amount", "0.5")
-    //.config("spark.executor.cores", "2")
-    //.config("spark.task.cpus","5")
-    //.config("spark.memory.offheap.enabled", "true")
-    //.config("spark.memory.offHeap.size","10G")
-//    .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-//    .config("spark.kryo.registrationRequired", "true")
-//    .config("spark.kryo.classesToRegister", "org.apache.spark.sql.types.DataType[].class")
-//    .registerKryoClasses(.
-//      Array(classOf[Person],classOf[Array[Person]],
-//        Class.forName("org.apache.spark.internal.io.FileCommitProtocol$TaskCommitMessage"))
-//    )
-    .getOrCreate()*/
+
+  //Without Kryo Serilizer
+ /* val spark = {
+    SparkSession
+      .builder
+      .appName("LoanPredictionIII")
+      .config("spark.master", "local[*]")
+      .config("spark.driver.bindAddress", "localhost")
+      .config("spark.sql.autoBroadcastJoinThreshold", "-1")
+      .config("spark.locality.wait", "0")
+      .config("spark.ext.h2o.repl.enabled", "false")
+      .getOrCreate()
+  }*/
 
 
   val sc = spark.sparkContext
