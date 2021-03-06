@@ -76,10 +76,16 @@ object AnalyzeWikibooksWithoutKryo extends App {
     .persist(StorageLevel.MEMORY_ONLY_SER)
   }
 
+
+  val titleAggDf = engllishWikibooksDf.groupBy("title").count().persist(StorageLevel.MEMORY_ONLY_SER)
+
   engllishWikibooksDf.printSchema()
   println(s"engllishWikibooksDf count - ${engllishWikibooksDf.count()}")
 
   engllishWikibooksDf.show(false)
+
+  println(s"engllishWikibooksDf title vise count - ${titleAggDf.count()}")
+  titleAggDf.show(false)
 
   Thread.sleep(60000*10)
   spark.stop()

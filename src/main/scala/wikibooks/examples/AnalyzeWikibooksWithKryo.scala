@@ -4,7 +4,6 @@ import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.storage.StorageLevel
 
-case class Wikibooks(title: String, url: String, Abstract: String, body_text: String, body_html: String)
 object AnalyzeWikibooksWithKryo extends App {
 
   private def getConfig = {
@@ -40,10 +39,6 @@ object AnalyzeWikibooksWithKryo extends App {
         Class.forName("scala.collection.immutable.Set$EmptySet$"),
         Class.forName("scala.reflect.ClassTag$$anon$1"),
         Class.forName("java.lang.Class"),
-        classOf[Wikibooks],
-        classOf[Array[Wikibooks]],
-        classOf[Dataset[Wikibooks]],
-        classOf[DataFrame],
         Class.forName("org.apache.spark.internal.io.FileCommitProtocol$TaskCommitMessage"),
         Class.forName("org.apache.spark.sql.execution.columnar.CachedBatch"),
         Class.forName("org.apache.spark.sql.catalyst.expressions.GenericInternalRow"),
@@ -72,19 +67,23 @@ object AnalyzeWikibooksWithKryo extends App {
   }
 
   import spark.implicits._
-  val engllishWikibooksDf: Dataset[Wikibooks] = { spark
+  val engllishWikibooksDf = { spark
     .read
     .format("csv")
     .option("header", "true")
     .load("C:\\Users\\Pranav\\Downloads\\Projects\\data\\wikibooks\\english-wikibooks\\en-books-dataset.csv")
     .persist(StorageLevel.MEMORY_ONLY_SER)
-    .as[Wikibooks]
   }
+
+  val titleAggDf = engllishWikibooksDf.groupBy("title").count().persist(StorageLevel.MEMORY_ONLY_SER)
 
   engllishWikibooksDf.printSchema()
   println(s"engllishWikibooksDf count - ${engllishWikibooksDf.count()}")
 
   engllishWikibooksDf.show(false)
+
+  println(s"engllishWikibooksDf title vise count - ${titleAggDf.count()}")
+  titleAggDf.show(false)
 
   Thread.sleep(60000*10)
   spark.stop()
