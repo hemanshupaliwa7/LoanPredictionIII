@@ -1,7 +1,7 @@
 package myorg.com.process
 
-import myorg.com.helpers.Splitter
-import analyticsvidya.helpers.Helpers
+import myorg.com.helpers.{Helpers, Splitter}
+import org.apache.spark.storage.StorageLevel
 
 trait DataProcessing extends Helpers {
 
@@ -10,7 +10,7 @@ trait DataProcessing extends Helpers {
     .format("csv")
     .option("header", "true")
     .option("inferSchema", "true")
-    .load("E:\\MyProjects\\Scala\\AnalyticsVidhya\\LoanPredictionIII\\Data\\train_ctrUa4K.csv")
+    .load("C:\\Users\\Pranav\\Downloads\\Projects\\LoanPredictionIII-rel-1.1\\Data\\train_ctrUa4K.csv")
   sourceTrainDf.printSchema()
   sourceTrainDf.createOrReplaceTempView("sourceTrain")
 
@@ -19,7 +19,7 @@ trait DataProcessing extends Helpers {
     .format("csv")
     .option("header", "true")
     .option("inferSchema", "true")
-    .load("E:\\MyProjects\\Scala\\AnalyticsVidhya\\LoanPredictionIII\\Data\\test_lAUu6dG.csv")
+    .load("C:\\Users\\Pranav\\Downloads\\Projects\\LoanPredictionIII-rel-1.1\\Data\\test_lAUu6dG.csv")
   sourceTestDf.printSchema()
 
   val sourceTrainMainDf = spark.sql(
@@ -75,11 +75,11 @@ trait DataProcessing extends Helpers {
   println("*** Training distribution")
   val overallDf = new Splitter().divide(inputDf = beforeTrainDf, label = "label")
 
-  val trainDf = overallDf(0).except(sourceTrainMainDf)
+  val trainDf = overallDf(0).except(sourceTrainMainDf).persist(StorageLevel.MEMORY_ONLY_SER)
   trainDf.groupBy("label").count().show()
 
   println("*** Testing distribution")
-  val testDf = overallDf(1).union(sourceTrainMainDf)
+  val testDf = overallDf(1).union(sourceTrainMainDf).persist(StorageLevel.MEMORY_ONLY_SER)
   testDf.groupBy("label").count().show()
 
 }

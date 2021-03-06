@@ -7,9 +7,11 @@ import org.apache.spark.sql.functions._
 object SparkMain extends App with FeatureEngineering {
 
   println("*** Create Pipeline")
-  val pipelineStages = stringIndexerArray :+ featureAssembler :+ rf
+  val pipelineStages = stringIndexerArray :+ oneHotEncoder :+ featureAssembler :+ rf
+  //val pipelineStages = Array(oneHotEncoder , featureAssembler, rf)
   val pipeline = new Pipeline()
       .setStages(pipelineStages)
+  pipeline.write.overwrite().save(currentDirectory + "/Pipeline")
 
   println("*** Train Model")
   val model = pipeline.fit(trainDf)
