@@ -1,21 +1,26 @@
 package myorg.com.process
 
-import ai.h2o.sparkling.ml.models.H2OMOJOModel
+import ai.h2o.sparkling.{H2OConf, H2OContext} // 3.32.x
 import myorg.com.helpers.Splitter
-import org.apache.spark.h2o.{H2OConf, H2OContext, H2OFrame}
-import org.apache.spark.ml.linalg._
+//import org.apache.spark.h2o.H2OContext // 3.30.x
 import org.apache.spark.sql.functions._
 import org.apache.spark.storage.StorageLevel
 
 object H2OMainWithoutPL extends App with DataProcessing {
 
   println("*** H2O Configuration and Context")
-  /*val h2oConf = new H2OConf(spark)
-    .set("spark.ui.enabled", "false")
-    .set("spark.locality.wait", "0")*/
+  /*// 3.30.x
+ val h2oConf = new H2OConf(spark)
+   .set("spark.ui.enabled", "false")
+   .set("spark.locality.wait", "0")*/
+
+  //3.32.x
+  val h2oConf = new H2OConf(spark.sparkContext.getConf)
+    .setLogLevel("ERROR")
 
   println("*** Set Up H2O Context")
-  val h2oContext = H2OContext.getOrCreate(spark)
+  //val h2oContext = H2OContext.getOrCreate(spark) // 3.30.x
+  val h2oContext = H2OContext.getOrCreate(h2oConf)
   h2oContext.setH2OLogLevel("ERROR")
 
   println("*** Training distribution")
@@ -71,7 +76,7 @@ object H2OMainWithoutPL extends App with DataProcessing {
     confusionMatrix.show(300)
 
   //Split Contributions And probabilities
-  val probKeysDf = flattenedPredXGBoost.select(explode(map_keys(col("detailed_prediction.probabilities")))).distinct()
+  /*val probKeysDf = flattenedPredXGBoost.select(explode(map_keys(col("detailed_prediction.probabilities")))).distinct()
   val probKeys = probKeysDf.collect().map(f=>f.get(0))
   val probKeysCols = probKeys.map(f=> col("detailed_prediction.probabilities").getItem(f).as("p"+f.toString))
   val contributionsDf = flattenedPredXGBoost.select(explode(map_keys(col("detailed_prediction.contributions")))).distinct()
@@ -89,9 +94,15 @@ object H2OMainWithoutPL extends App with DataProcessing {
     .write.format("csv")
     .option("header", "true")
     .mode("overwrite")
-    .save(currentDirectory + "/testPred")
+    .save(currentDirectory + "/testPred")*/
 
-  Thread.sleep(60000*10)
-  spark.stop()
+  flattenedPredXGBoost
+    .withColumn("p0", expr("detailed_prediction.probabilities.`0`"))
+    .withColumn("p1", expr("detailed_prediction.probabilities.`1`"))
+    .select("label", "prediction", "p0", "p1")
+    .show(false)
+
+  //Thread.sleep(60000*10)
   h2oContext.stop(stopSparkContext = true)
+  spark.stop()
 }

@@ -1,7 +1,8 @@
 package myorg.com.process
 
+import ai.h2o.sparkling.{H2OConf, H2OContext}
 import myorg.com.helpers.Splitter
-import org.apache.spark.h2o.{H2OConf, H2OContext, H2OFrame}
+//import org.apache.spark.h2o.{H2OConf, H2OContext, H2OFrame} //3.30.x
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.functions._
@@ -10,12 +11,17 @@ import _root_.hex.{Model, ModelMetricsBinomial, ScoreKeeper}
 object H2OMain extends App with FeatureEngineering {
 
   println("*** H2O Configuration and Context")
-  /*val h2oConf = new H2OConf(spark)
+  /*// 3.30.x
+  val h2oConf = new H2OConf(spark)
     .set("spark.ui.enabled", "false")
     .set("spark.locality.wait", "0")*/
 
+  //3.32.x
+  val h2oConf = new H2OConf(spark.sparkContext.getConf)
+
   println("*** Set Up H2O Context")
-  val h2oContext = H2OContext.getOrCreate(spark)
+  //val h2oContext = H2OContext.getOrCreate(spark) // 3.30.x
+  val h2oContext = H2OContext.getOrCreate(h2oConf)
 
   println("*** Create Pipeline")
   //val pipelineStages1 = stringIndexerArray ++ oneHotEncoder  featureAssembler

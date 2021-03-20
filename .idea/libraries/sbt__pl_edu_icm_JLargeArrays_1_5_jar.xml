@@ -4,6 +4,8 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/pl.edu.icm/JLargeArrays/jars/JLargeArrays-1.5.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/pl.edu.icm/JLargeArrays/srcs/JLargeArrays-1.5-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="sbt: org.codehaus.jsr166-mirror:jsr166y:1.7.0:jar">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.ivy2/cache/org.codehaus.jsr166-mirror/jsr166y/jars/jsr166y-1.7.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="sbt: ai.h2o:h2o-tree-api:0.3.13:jar">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.ivy2/cache/ai.h2o/h2o-tree-api/jars/h2o-tree-api-0.3.13.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

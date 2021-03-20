@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="sbt: ai.h2o:h2o-jetty-9:3.28.1.2:jar">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.ivy2/cache/ai.h2o/h2o-jetty-9/jars/h2o-jetty-9-3.28.1.2.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

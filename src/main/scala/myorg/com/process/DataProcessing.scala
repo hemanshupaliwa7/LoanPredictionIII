@@ -10,7 +10,7 @@ trait DataProcessing extends Helpers {
     .format("csv")
     .option("header", "true")
     .option("inferSchema", "true")
-    .load("C:\\Users\\Pranav\\Downloads\\Projects\\LoanPredictionIII-rel-1.1\\Data\\train_ctrUa4K.csv")
+    .load(currentDirectory + "/Data/train_ctrUa4K.csv")
   sourceTrainDf.printSchema()
   sourceTrainDf.createOrReplaceTempView("sourceTrain")
 
@@ -19,7 +19,7 @@ trait DataProcessing extends Helpers {
     .format("csv")
     .option("header", "true")
     .option("inferSchema", "true")
-    .load("C:\\Users\\Pranav\\Downloads\\Projects\\LoanPredictionIII-rel-1.1\\Data\\test_lAUu6dG.csv")
+    .load(currentDirectory + "/Data/test_lAUu6dG.csv")
   sourceTestDf.printSchema()
 
   val sourceTrainMainDf = spark.sql(

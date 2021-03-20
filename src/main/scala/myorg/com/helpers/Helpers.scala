@@ -8,7 +8,7 @@ import org.apache.spark.sql.SparkSession
 trait Helpers {
 
   case class Person (name: String)
-  val currentDirectory = new java.io.File(".").getCanonicalPath + "/Working_Directory"
+  val currentDirectory = new java.io.File(".").getCanonicalPath
   System.setProperty("hadoop.home.dir","C:\\hadoop" )
   private def getConfig = {
     val conf = new SparkConf()
